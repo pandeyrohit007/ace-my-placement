@@ -47,6 +47,10 @@ export function ProfileForm({ onSubmit, loading, initial, banner }: Props) {
         e.preventDefault();
         onSubmit(p);
       }}
+      className="space-y-6"
+    >
+      {banner}
+      }}
       className="space-y-8"
     >
       <Section title="🎓 Academic">
