@@ -118,10 +118,9 @@ async function extractText(file: File): Promise<string> {
     return result.value;
   }
   if (ext === "pdf") {
-    const pdfjs = await import("pdfjs-dist");
-    // @ts-expect-error - worker URL
-    const workerSrc = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
-    pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
+    const pdfjs: any = await import("pdfjs-dist");
+    const workerMod: any = await import("pdfjs-dist/build/pdf.worker.min.mjs?url");
+    pdfjs.GlobalWorkerOptions.workerSrc = workerMod.default;
     const buf = await file.arrayBuffer();
     const pdf = await pdfjs.getDocument({ data: buf }).promise;
     let text = "";
