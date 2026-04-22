@@ -119,8 +119,8 @@ async function extractText(file: File): Promise<string> {
   }
   if (ext === "pdf") {
     const pdfjs: any = await import("pdfjs-dist");
-    const workerMod: any = await import("pdfjs-dist/build/pdf.worker.min.mjs?url");
-    pdfjs.GlobalWorkerOptions.workerSrc = workerMod.default;
+    const version = pdfjs.version || "4.10.38";
+    pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.min.mjs`;
     const buf = await file.arrayBuffer();
     const pdf = await pdfjs.getDocument({ data: buf }).promise;
     let text = "";
