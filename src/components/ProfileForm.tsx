@@ -50,9 +50,6 @@ export function ProfileForm({ onSubmit, loading, initial, banner }: Props) {
       className="space-y-6"
     >
       {banner}
-      }}
-      className="space-y-8"
-    >
       <Section title="🎓 Academic">
         <Field label="Full name">
           <Input value={p.name} onChange={(e) => set("name", e.target.value.slice(0, 80))} placeholder="Aarav Sharma" required />
