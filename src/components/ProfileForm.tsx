@@ -32,10 +32,12 @@ const DEFAULT: StudentProfile = {
 interface Props {
   onSubmit: (p: StudentProfile) => void;
   loading: boolean;
+  initial?: StudentProfile;
+  banner?: React.ReactNode;
 }
 
-export function ProfileForm({ onSubmit, loading }: Props) {
-  const [p, setP] = useState<StudentProfile>(DEFAULT);
+export function ProfileForm({ onSubmit, loading, initial, banner }: Props) {
+  const [p, setP] = useState<StudentProfile>(initial ?? DEFAULT);
   const set = <K extends keyof StudentProfile>(k: K, v: StudentProfile[K]) =>
     setP((prev) => ({ ...prev, [k]: v }));
 
@@ -45,8 +47,9 @@ export function ProfileForm({ onSubmit, loading }: Props) {
         e.preventDefault();
         onSubmit(p);
       }}
-      className="space-y-8"
+      className="space-y-6"
     >
+      {banner}
       <Section title="🎓 Academic">
         <Field label="Full name">
           <Input value={p.name} onChange={(e) => set("name", e.target.value.slice(0, 80))} placeholder="Aarav Sharma" required />
