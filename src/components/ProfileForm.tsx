@@ -32,10 +32,12 @@ const DEFAULT: StudentProfile = {
 interface Props {
   onSubmit: (p: StudentProfile) => void;
   loading: boolean;
+  initial?: StudentProfile;
+  banner?: React.ReactNode;
 }
 
-export function ProfileForm({ onSubmit, loading }: Props) {
-  const [p, setP] = useState<StudentProfile>(DEFAULT);
+export function ProfileForm({ onSubmit, loading, initial, banner }: Props) {
+  const [p, setP] = useState<StudentProfile>(initial ?? DEFAULT);
   const set = <K extends keyof StudentProfile>(k: K, v: StudentProfile[K]) =>
     setP((prev) => ({ ...prev, [k]: v }));
 
