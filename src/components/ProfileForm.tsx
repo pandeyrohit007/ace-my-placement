@@ -50,7 +50,7 @@ export function ProfileForm({ onSubmit, loading, initial, banner }: Props) {
       className="space-y-6"
     >
       {banner}
-      <Section title="🎓 Academic">
+      <Section title="Academic">
         <Field label="Full name">
           <Input value={p.name} onChange={(e) => set("name", e.target.value.slice(0, 80))} placeholder="Aarav Sharma" required />
         </Field>
@@ -89,7 +89,7 @@ export function ProfileForm({ onSubmit, loading, initial, banner }: Props) {
         </Field>
       </Section>
 
-      <Section title="💻 Technical Skills">
+      <Section title="Technical Skills">
         <Field label="Programming languages (with level)" full>
           <Input value={p.languages} onChange={(e) => set("languages", e.target.value)}
             placeholder="Python (Advanced), Java (Intermediate), C++ (Beginner)" />
@@ -119,7 +119,7 @@ export function ProfileForm({ onSubmit, loading, initial, banner }: Props) {
         </Field>
       </Section>
 
-      <Section title="💼 Experience">
+      <Section title="Experience">
         <Field label="Internships (count)">
           <Input type="number" min={0} value={p.internships} onChange={(e) => set("internships", +e.target.value)} />
         </Field>
@@ -139,7 +139,7 @@ export function ProfileForm({ onSubmit, loading, initial, banner }: Props) {
         </Field>
       </Section>
 
-      <Section title="🗣️ Soft Skills">
+      <Section title="Soft Skills">
         <Field label={`Communication (${p.communication}/10)`} full>
           <input type="range" min={1} max={10} value={p.communication}
             onChange={(e) => set("communication", +e.target.value)}
