@@ -23,6 +23,84 @@ const profileSchema = z.object({
   english: z.enum(["Basic", "Intermediate", "Fluent"]),
 });
 
+const profileExtractTool = {
+  type: "function" as const,
+  function: {
+    name: "extract_student_profile",
+    description: "Extract a structured student profile from CV/resume text.",
+    parameters: {
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        cgpa: { type: "number", description: "0-10. If only percentage given, convert (%/9.5)." },
+        tenth: { type: "number" },
+        twelfth: { type: "number" },
+        branch: { type: "string", description: "CSE / IT / ECE / EEE / Mechanical / Civil / AI/DS / Other" },
+        collegeTier: { type: "string", enum: ["Tier 1", "Tier 2", "Tier 3"], description: "IIT/NIT/BITS/IIIT-H => Tier 1; reputed state/private => Tier 2; lesser-known => Tier 3" },
+        backlogs: { type: "number" },
+        languages: { type: "string", description: "Comma list with levels" },
+        dsa: { type: "string", enum: ["Beginner", "Intermediate", "Advanced"] },
+        webMlCloud: { type: "string", description: "Comma list of frameworks/tools" },
+        githubProjects: { type: "number" },
+        projectQuality: { type: "string", enum: ["Basic", "Intermediate", "Production-level"] },
+        internships: { type: "number" },
+        internshipTier: { type: "string", enum: ["None", "Startup", "Mid", "MNC"] },
+        certifications: { type: "number" },
+        hackathons: { type: "number" },
+        communication: { type: "number", description: "1-10 estimate from CV polish, achievements, leadership roles" },
+        english: { type: "string", enum: ["Basic", "Intermediate", "Fluent"] },
+        notes: { type: "string", description: "Brief 1-line note about confidence / what was inferred vs found." },
+      },
+      required: [
+        "name", "cgpa", "tenth", "twelfth", "branch", "collegeTier", "backlogs",
+        "languages", "dsa", "webMlCloud", "githubProjects", "projectQuality",
+        "internships", "internshipTier", "certifications", "hackathons",
+        "communication", "english", "notes",
+      ],
+      additionalProperties: false,
+    },
+  },
+};
+
+export const extractProfileFromCV = createServerFn({ method: "POST" })
+  .inputValidator((input: { cvText: string }) => z.object({
+    cvText: z.string().min(50, "CV text too short").max(50000, "CV text too long"),
+  }).parse(input))
+  .handler(async ({ data }): Promise<StudentProfile & { notes: string }> => {
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
+
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          {
+            role: "system",
+            content: `You extract a structured student profile from raw CV / resume text for an Indian campus placement predictor. Make best-effort estimates when fields are missing — never leave fields blank. For DSA proficiency, infer from LeetCode/Codeforces ratings, ICPC, projects. For project quality: Basic = small tutorial-style; Intermediate = original full-stack; Production-level = deployed/used by real users or with significant scale. For communication: estimate 1-10 from leadership roles, public speaking, content creation, CV writing quality.`,
+          },
+          { role: "user", content: `Extract the profile from this CV:\n\n${data.cvText}` },
+        ],
+        tools: [profileExtractTool],
+        tool_choice: { type: "function", function: { name: "extract_student_profile" } },
+      }),
+    });
+
+    if (res.status === 429) throw new Error("Rate limit exceeded. Please try again in a minute.");
+    if (res.status === 402) throw new Error("AI credits exhausted.");
+    if (!res.ok) {
+      const t = await res.text();
+      console.error("Extract error", res.status, t);
+      throw new Error("AI service error.");
+    }
+
+    const json = await res.json();
+    const toolCall = json.choices?.[0]?.message?.tool_calls?.[0];
+    if (!toolCall?.function?.arguments) throw new Error("Could not parse the CV.");
+    return JSON.parse(toolCall.function.arguments);
+  });
+
 const reportTool = {
   type: "function" as const,
   function: {
