@@ -26,12 +26,12 @@ export const Route = createFileRoute("/")({
 function Index() {
   const generate = useServerFn(generateReport);
   const [loading, setLoading] = useState(false);
-  const [report, setReport] = useState(null || null);
-  const [profile, setProfile] = useState(null || null);
-  const [error, setError] = useState("");
+  const [report, setReport] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [error, setError] = useState(null);
   const [mode, setMode] = useState("form");
-  const [extractedProfile, setExtractedProfile] = useState(null || null);
-  const [extractNotes, setExtractNotes] = useState("");
+  const [extractedProfile, setExtractedProfile] = useState(null);
+  const [extractNotes, setExtractNotes] = useState(null);
 
   const onSubmit = async (p) => {
     setLoading(true);
