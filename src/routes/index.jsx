@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { generateReport } from "@/server/ai.functions";
-import type { PlacementReport, StudentProfile } from "@/lib/types";
 import { ProfileForm } from "@/components/ProfileForm";
 import { ReportView } from "@/components/ReportView";
 import { CVUploader } from "@/components/CVUploader";
@@ -27,14 +26,14 @@ export const Route = createFileRoute("/")({
 function Index() {
   const generate = useServerFn(generateReport);
   const [loading, setLoading] = useState(false);
-  const [report, setReport] = useState<PlacementReport | null>(null);
-  const [profile, setProfile] = useState<StudentProfile | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<"form" | "cv">("form");
-  const [extractedProfile, setExtractedProfile] = useState<StudentProfile | null>(null);
-  const [extractNotes, setExtractNotes] = useState<string | null>(null);
+  const [report, setReport] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [error, setError] = useState(null);
+  const [mode, setMode] = useState("form");
+  const [extractedProfile, setExtractedProfile] = useState(null);
+  const [extractNotes, setExtractNotes] = useState(null);
 
-  const onSubmit = async (p: StudentProfile) => {
+  const onSubmit = async (p) => {
     setLoading(true);
     setError(null);
     try {
@@ -49,7 +48,7 @@ function Index() {
     }
   };
 
-  const onCVExtracted = (p: StudentProfile, notes: string) => {
+  const onCVExtracted = (p, notes) => {
     setExtractedProfile(p);
     setExtractNotes(notes);
     setMode("form");
@@ -90,7 +89,7 @@ function Index() {
           <ReportView report={report} profile={profile} onReset={onReset} />
         ) : (
           <div className="space-y-6">
-            <Tabs value={mode} onValueChange={(v) => setMode(v as "form" | "cv")} className="w-full">
+            <Tabs value={mode} onValueChange={(v) => setMode(v)} className="w-full">
               <TabsList className="mx-auto grid w-full max-w-md grid-cols-2 bg-muted/60 p-1 h-11">
                 <TabsTrigger value="cv" className="gap-2 data-[state=active]:bg-gradient-hero data-[state=active]:text-primary-foreground">
                   <FileText className="h-4 w-4" /> CV Analyzer

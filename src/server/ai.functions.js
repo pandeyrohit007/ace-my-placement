@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import type { PlacementReport, StudentProfile } from "@/lib/types";
 
 const profileSchema = z.object({
   name: z.string().max(80),
@@ -24,7 +23,7 @@ const profileSchema = z.object({
 });
 
 const profileExtractTool = {
-  type: "function" as const,
+  type: "function",
   function: {
     name: "extract_student_profile",
     description: "Extract a structured student profile from CV/resume text.",
@@ -63,10 +62,10 @@ const profileExtractTool = {
 };
 
 export const extractProfileFromCV = createServerFn({ method: "POST" })
-  .inputValidator((input: { cvText: string }) => z.object({
+  .inputValidator((input) => z.object({
     cvText: z.string().min(50, "CV text too short").max(50000, "CV text too long"),
   }).parse(input))
-  .handler(async ({ data }): Promise<StudentProfile & { notes: string }> => {
+  .handler(async ({ data }) => {
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -102,7 +101,7 @@ export const extractProfileFromCV = createServerFn({ method: "POST" })
   });
 
 const reportTool = {
-  type: "function" as const,
+  type: "function",
   function: {
     name: "emit_placement_report",
     description: "Return a complete placement prediction report.",
@@ -200,8 +199,8 @@ Calibration guidelines:
 Always populate ALL fields in the tool. Use ₹ symbol for CTC. Make benchmark, whatIf, and roadmap concrete and personalized to the profile. Roadmap must be 3 months × 4 weeks each.`;
 
 export const generateReport = createServerFn({ method: "POST" })
-  .inputValidator((input: StudentProfile) => profileSchema.parse(input))
-  .handler(async ({ data }): Promise<PlacementReport> => {
+  .inputValidator((input) => profileSchema.parse(input))
+  .handler(async ({ data }) => {
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -236,8 +235,7 @@ export const generateReport = createServerFn({ method: "POST" })
     const toolCall = json.choices?.[0]?.message?.tool_calls?.[0];
     if (!toolCall?.function?.arguments) throw new Error("AI did not return a structured report.");
 
-    const parsed = JSON.parse(toolCall.function.arguments) as PlacementReport;
-    return parsed;
+    return JSON.parse(toolCall.function.arguments);
   });
 
 const whatIfSchema = z.object({
@@ -246,7 +244,7 @@ const whatIfSchema = z.object({
 });
 
 const whatIfTool = {
-  type: "function" as const,
+  type: "function",
   function: {
     name: "emit_what_if",
     description: "Recalculate placement probability under a hypothetical change.",
@@ -280,7 +278,7 @@ const whatIfTool = {
 };
 
 export const runWhatIf = createServerFn({ method: "POST" })
-  .inputValidator((input: { profile: StudentProfile; hypothetical: string }) => whatIfSchema.parse(input))
+  .inputValidator((input) => whatIfSchema.parse(input))
   .handler(async ({ data }) => {
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
@@ -309,11 +307,5 @@ export const runWhatIf = createServerFn({ method: "POST" })
     const json = await res.json();
     const toolCall = json.choices?.[0]?.message?.tool_calls?.[0];
     if (!toolCall?.function?.arguments) throw new Error("AI did not return a structured response.");
-    return JSON.parse(toolCall.function.arguments) as {
-      oldProbability: number;
-      newProbability: number;
-      delta: number;
-      explanation: string;
-      topImpacts: { change: string; newProbability: number; delta: number }[];
-    };
+    return JSON.parse(toolCall.function.arguments);
   });

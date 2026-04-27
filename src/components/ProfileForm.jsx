@@ -1,5 +1,4 @@
 import { useState } from "react";
-import type { StudentProfile } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +7,7 @@ import {
 } from "@/components/ui/select";
 import { Sparkles, Loader2 } from "lucide-react";
 
-const DEFAULT: StudentProfile = {
+const DEFAULT = {
   name: "",
   cgpa: 7.5,
   tenth: 85,
@@ -29,17 +28,9 @@ const DEFAULT: StudentProfile = {
   english: "Intermediate",
 };
 
-interface Props {
-  onSubmit: (p: StudentProfile) => void;
-  loading: boolean;
-  initial?: StudentProfile;
-  banner?: React.ReactNode;
-}
-
-export function ProfileForm({ onSubmit, loading, initial, banner }: Props) {
-  const [p, setP] = useState<StudentProfile>(initial ?? DEFAULT);
-  const set = <K extends keyof StudentProfile>(k: K, v: StudentProfile[K]) =>
-    setP((prev) => ({ ...prev, [k]: v }));
+export function ProfileForm({ onSubmit, loading, initial, banner }) {
+  const [p, setP] = useState(initial ?? DEFAULT);
+  const set = (k, v) => setP((prev) => ({ ...prev, [k]: v }));
 
   return (
     <form
@@ -75,7 +66,7 @@ export function ProfileForm({ onSubmit, loading, initial, banner }: Props) {
           </Select>
         </Field>
         <Field label="College tier">
-          <Select value={p.collegeTier} onValueChange={(v) => set("collegeTier", v as StudentProfile["collegeTier"])}>
+          <Select value={p.collegeTier} onValueChange={(v) => set("collegeTier", v)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="Tier 1">Tier 1 (IIT/NIT/BITS)</SelectItem>
@@ -95,7 +86,7 @@ export function ProfileForm({ onSubmit, loading, initial, banner }: Props) {
             placeholder="Python (Advanced), Java (Intermediate), C++ (Beginner)" />
         </Field>
         <Field label="DSA proficiency">
-          <Select value={p.dsa} onValueChange={(v) => set("dsa", v as StudentProfile["dsa"])}>
+          <Select value={p.dsa} onValueChange={(v) => set("dsa", v)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               {["Beginner", "Intermediate", "Advanced"].map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
@@ -110,7 +101,7 @@ export function ProfileForm({ onSubmit, loading, initial, banner }: Props) {
           <Input type="number" min={0} value={p.githubProjects} onChange={(e) => set("githubProjects", +e.target.value)} />
         </Field>
         <Field label="Project quality">
-          <Select value={p.projectQuality} onValueChange={(v) => set("projectQuality", v as StudentProfile["projectQuality"])}>
+          <Select value={p.projectQuality} onValueChange={(v) => set("projectQuality", v)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               {["Basic", "Intermediate", "Production-level"].map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
@@ -124,7 +115,7 @@ export function ProfileForm({ onSubmit, loading, initial, banner }: Props) {
           <Input type="number" min={0} value={p.internships} onChange={(e) => set("internships", +e.target.value)} />
         </Field>
         <Field label="Top internship tier">
-          <Select value={p.internshipTier} onValueChange={(v) => set("internshipTier", v as StudentProfile["internshipTier"])}>
+          <Select value={p.internshipTier} onValueChange={(v) => set("internshipTier", v)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               {["None", "Startup", "Mid", "MNC"].map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
@@ -146,7 +137,7 @@ export function ProfileForm({ onSubmit, loading, initial, banner }: Props) {
             className="w-full accent-[var(--primary)]" />
         </Field>
         <Field label="English proficiency">
-          <Select value={p.english} onValueChange={(v) => set("english", v as StudentProfile["english"])}>
+          <Select value={p.english} onValueChange={(v) => set("english", v)}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               {["Basic", "Intermediate", "Fluent"].map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
@@ -163,7 +154,7 @@ export function ProfileForm({ onSubmit, loading, initial, banner }: Props) {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children }) {
   return (
     <div className="rounded-2xl border bg-gradient-card p-6 shadow-soft">
       <h3 className="mb-5 text-lg font-semibold">{title}</h3>
@@ -172,7 +163,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function Field({ label, children, full }: { label: string; children: React.ReactNode; full?: boolean }) {
+function Field({ label, children, full }) {
   return (
     <div className={full ? "sm:col-span-2 space-y-1.5" : "space-y-1.5"}>
       <Label className="text-xs uppercase tracking-wide text-muted-foreground">{label}</Label>

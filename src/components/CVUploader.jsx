@@ -1,21 +1,15 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Loader2, Upload, FileText, X } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { extractProfileFromCV } from "@/server/ai.functions";
-import type { StudentProfile } from "@/lib/types";
 
-interface Props {
-  onExtracted: (p: StudentProfile, notes: string) => void;
-}
-
-export function CVUploader({ onExtracted }: Props) {
+export function CVUploader({ onExtracted }) {
   const extractFn = useServerFn(extractProfileFromCV);
-  const [file, setFile] = useState<File | null>(null);
-  const [stage, setStage] = useState<"idle" | "reading" | "analyzing">("idle");
-  const [error, setError] = useState<string | null>(null);
+  const [file, setFile] = useState(null);
+  const [stage, setStage] = useState("idle");
+  const [error, setError] = useState(null);
 
-  const handle = async (f: File) => {
+  const handle = async (f) => {
     setError(null);
     setFile(f);
     setStage("reading");
@@ -32,7 +26,7 @@ export function CVUploader({ onExtracted }: Props) {
     }
   };
 
-  const onDrop = (e: React.DragEvent) => {
+  const onDrop = (e) => {
     e.preventDefault();
     const f = e.dataTransfer.files?.[0];
     if (f) handle(f);
@@ -108,7 +102,7 @@ export function CVUploader({ onExtracted }: Props) {
   );
 }
 
-async function extractText(file: File): Promise<string> {
+async function extractText(file) {
   const ext = file.name.toLowerCase().split(".").pop();
   if (ext === "txt") return await file.text();
   if (ext === "docx") {
@@ -118,7 +112,7 @@ async function extractText(file: File): Promise<string> {
     return result.value;
   }
   if (ext === "pdf") {
-    const pdfjs: any = await import("pdfjs-dist");
+    const pdfjs = await import("pdfjs-dist");
     const version = pdfjs.version || "4.10.38";
     pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.min.mjs`;
     const buf = await file.arrayBuffer();
@@ -127,7 +121,7 @@ async function extractText(file: File): Promise<string> {
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
-      text += content.items.map((it: any) => it.str).join(" ") + "\n";
+      text += content.items.map((it) => it.str).join(" ") + "\n";
     }
     return text;
   }

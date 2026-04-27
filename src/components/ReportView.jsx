@@ -1,5 +1,4 @@
 import { useState } from "react";
-import type { PlacementReport, StudentProfile } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useServerFn } from "@tanstack/react-start";
@@ -9,13 +8,7 @@ import {
   Target, Map, Sparkles, Loader2, ArrowRight,
 } from "lucide-react";
 
-interface Props {
-  report: PlacementReport;
-  profile: StudentProfile;
-  onReset: () => void;
-}
-
-export function ReportView({ report, profile, onReset }: Props) {
+export function ReportView({ report, profile, onReset }) {
   const ringColor =
     report.probability >= 75 ? "text-success"
     : report.probability >= 50 ? "text-primary"
@@ -182,7 +175,7 @@ export function ReportView({ report, profile, onReset }: Props) {
   );
 }
 
-function Card({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
+function Card({ icon, title, children }) {
   return (
     <div className="rounded-2xl border bg-card p-6 shadow-soft">
       <div className="mb-4 flex items-center gap-2">
@@ -194,7 +187,7 @@ function Card({ icon, title, children }: { icon: React.ReactNode; title: string;
   );
 }
 
-function ProbabilityRing({ value, colorClass }: { value: number; colorClass: string }) {
+function ProbabilityRing({ value, colorClass }) {
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (Math.min(100, Math.max(0, value)) / 100) * circumference;
@@ -215,12 +208,12 @@ function ProbabilityRing({ value, colorClass }: { value: number; colorClass: str
   );
 }
 
-function WhatIfChat({ profile, currentProb }: { profile: StudentProfile; currentProb: number }) {
+function WhatIfChat({ profile, currentProb }) {
   const whatIfFn = useServerFn(runWhatIf);
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<Awaited<ReturnType<typeof runWhatIf>> | null>(null);
-  const [err, setErr] = useState<string | null>(null);
+  const [result, setResult] = useState(null);
+  const [err, setErr] = useState(null);
 
   const ask = async () => {
     if (!q.trim()) return;
